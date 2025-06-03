@@ -1,0 +1,3 @@
+[submodule "modular_optuna_ml"]
+	path = modular_optuna_ml
+	url = https://github.com/neuropoly/modular_optuna_ml.git
