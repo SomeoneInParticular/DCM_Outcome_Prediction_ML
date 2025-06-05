@@ -12,7 +12,8 @@ If you want to replicate our analyses, please follow the steps below:
 
 * Have a working installation of SCT 7.0 (available [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/7.0))
 * A clone of this repository on your machine
-* A Conda/Mamba environment which has the packages within `requirements.txt`
+* A Conda/Mamba environment which has the packages designated within `environment.yml`
+* A copy of our dataset: it is available upon reasonable request from [Dr. David Cadotte](mailto:david.cadotte@ucalgary.ca)
 
 ### Processing the MRI Sequences
 
