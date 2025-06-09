@@ -17,6 +17,5 @@ If you want to replicate our analyses, please follow the steps below:
 
 ### Processing the MRI Sequences
 
-0. Obtain a copy of the dataset: it is available upon reasonable request from [Dr. David Cadotte](mailto:david.cadotte@ucalgary.ca)
-1. Process the MRI sequences, generating the MRI datasets 
-2. Run 
+1. Follow the steps detailed in `step1_process_mri` to process the MRI sequences, generating the MRI-derived metric datasets.
+2. 

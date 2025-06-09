@@ -41,11 +41,17 @@ VERT_FILE="$OUT_FOLDER/$SEG_NAME""_labeled.nii.gz"
 
 # Identify the vertebrae within the segmentation
 if [ ! -f "$VERT_FILE" ]; then
-  echo "Begging vertebrae labelling."
-  sct_label_vertebrae -i "$INPUT_FILE" -s "$SEG_FILE" -c "$CONTRAST" -ofolder "$OUT_FOLDER"
+  # Attempt to run vertebrae labelling
+  echo "Attempting vertebral labelling!"
+  bash "label_vertebrae.sh" "$INPUT_FILE" "$SEG_FILE" "$OUT_FOLDER" "$CONTRAST" "$SCT_PATH" "$VERT_FILE"
 else
   printf "\n"
   echo "Vertebral labels already exist, skipping"
+fi
+
+if [ ! -f "$VERT_FILE" ]; then
+  echo "No vertebral label found, terminating early"
+  exit 1
 fi
 
 # Generate the output values for segmentation processing
