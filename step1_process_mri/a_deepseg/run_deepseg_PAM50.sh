@@ -6,7 +6,7 @@ OUT_FOLDER=$2
 SCT_PATH=$3
 
 # Output file name for this script
-PER_SLICE_OUT_NAME="deepseg_perslice_metrics.csv"
+PER_SLICE_OUT_NAME="deepseg_pam50_metrics.csv"
 
 # Add the SCT utilities to the PATH
 export PATH="$PATH:$SCT_PATH"
