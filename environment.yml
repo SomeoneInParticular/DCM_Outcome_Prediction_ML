@@ -31,11 +31,16 @@ dependencies:
   - numpy=2.3.0=py312h6cf2f7f_0
   - openssl=3.5.0=h7b32b05_1
   - packaging=25.0=pyh29332c3_1
+  - pandas=2.3.0=py312hf9745cd_0
   - pip=25.1.1=pyh8b19718_0
   - python=3.12.10=h9e4cc4f_0_cpython
+  - python-dateutil=2.9.0.post0=pyhff2d567_1
+  - python-tzdata=2025.2=pyhd8ed1ab_0
   - python_abi=3.12=7_cp312
+  - pytz=2025.2=pyhd8ed1ab_0
   - readline=8.2=h8c095d6_2
   - setuptools=80.9.0=pyhff2d567_0
+  - six=1.17.0=pyhd8ed1ab_0
   - tk=8.6.13=noxft_hd72426e_102
   - typing_extensions=4.14.0=pyhe01879c_0
   - tzdata=2025b=h78e105d_0
