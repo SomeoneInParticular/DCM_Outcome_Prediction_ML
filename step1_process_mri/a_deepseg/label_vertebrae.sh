@@ -22,6 +22,7 @@ fi
 
 # Attempt to label the vertebrae
 echo "Beginning vertebrae labelling."
+echo "Expected output: $EXPECTED_OUT"
 sct_label_vertebrae -i "$INPUT_FILE" -s "$SEG_FILE" -c "$CONTRAST" -ofolder "$OUT_FOLDER"
 
 # Generate the output values for vertebral labelling

@@ -23,10 +23,9 @@ fi
 
 # Generate the output values for this segmentation
 SEG_NAME="${INPUT_FILE##*/}"
-SEG_NAME="${SEG_NAME%%.*}"
+SEG_NAME="${SEG_NAME%%.*}_deepseg.nii.gz"
 
-SEG_FILE="$SEG_NAME""_deepseg.nii.gz"
-SEG_FILE="$OUT_FOLDER/$SEG_FILE"
+SEG_FILE="$OUT_FOLDER/$SEG_NAME"
 
 # Run DeepSeg (contrast agnostic segmentation) on the file
 if [ ! -f "$SEG_FILE" ]; then
@@ -37,7 +36,7 @@ else
 fi
 
 # Generate the output values for vertebral labelling
-VERT_FILE="$OUT_FOLDER/$SEG_NAME""_labeled.nii.gz"
+VERT_FILE="$OUT_FOLDER/${SEG_NAME%%.*}_labeled.nii.gz"
 
 # Identify the vertebrae within the segmentation
 if [ ! -f "$VERT_FILE" ]; then
