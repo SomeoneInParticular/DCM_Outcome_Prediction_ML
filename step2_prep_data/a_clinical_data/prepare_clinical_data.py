@@ -61,11 +61,25 @@ def hrr(mjoa_init, mjoa_1year):
 
 
 def misc_clean(cleaned_df):
-    # Drop some remaining duplicated columns
-    cleaned_df = cleaned_df.drop(columns=["('Surgical', 'initial')", "('BMI', 'initial')"])
-
     # Filter out any patients which were non-surgical
     cleaned_df = cleaned_df.loc[cleaned_df['Surgical'] == 1, :]
+    cleaned_df = cleaned_df.drop('Surgical', axis=1)
+
+    # Drop some remaining duplicated/irrelevant columns
+    cleaned_df = cleaned_df.drop(columns=[
+        "('Surgical', 'initial')",  # Uniform by definition
+        "Number of Surgeries",  # Very rare to see more than 1
+        "Treatment Plan",  # Always surgery
+        "Site",  # Too difficult to encode w/o introducing bias
+        "('BMI', 'initial')",  # Duplicate
+        "CSM Duration",  # Symptom duration is nearly identical
+        "Followup: 6-18 weeks",  # Not relevant
+        "Followup: 12 month",  # Not relevant
+        "Followup: 24 month",  # Not relevant
+        "Followup: 60 month",  # Not relevant
+        "Date of Assessment",  # Not relevant
+        "Work Status"  # Better encoding exists in 'Work Status (Category)'
+    ])
 
     # Update the column headers to no longer state the time point (as they are all the same now)
     cleaned_df.columns = [c.replace("'initial'", "") for c in cleaned_df.columns]
@@ -78,6 +92,25 @@ def misc_clean(cleaned_df):
     # Fix a malformed BMI value; set it to null so imputation can handle it later
     cleaned_df.loc[cleaned_df['BMI'] == 0, 'BMI'] = np.nan
     return cleaned_df
+
+
+def calculate_targets(final_df):
+    # Calculate the Hirabayashi Recovery Ratio (HRR) for each patient
+    hrr_vals = hrr(final_df['mJOA initial'], final_df['mJOA 12 months'])
+    final_df['HRR'] = hrr_vals
+
+    # Calculate the recovery class of each patient
+    final_df['Recovery Class'] = ['good' if v >= 0.5 else "fair" for v in hrr_vals]
+    final_df.loc[pd.isna(hrr_vals), 'Recovery Class'] = np.nan
+    final_df = final_df.dropna(subset=['Recovery Class'])
+
+    # Drop the remaining variables, as they would mislead the ML model
+    final_df = final_df.drop(columns=[
+        'mJOA 12 months',
+        'HRR'
+    ])
+
+    return final_df
 
 
 def main(clinical_data: Path, output_file: Path):
@@ -121,17 +154,6 @@ def main(clinical_data: Path, output_file: Path):
     if '.tsv' != output_file.name[-4:]:
         output_file = str(output_file) + '.tsv'
     final_df.to_csv(output_file, sep='\t')
-
-
-def calculate_targets(final_df):
-    # Calculate the Hirabayashi Recovery Ratio (HRR) for each patient
-    hrr_vals = hrr(final_df['mJOA initial'], final_df['mJOA 12 months'])
-    final_df['HRR'] = hrr_vals
-    # Calculate the recovery class of each patient
-    final_df['Recovery Class'] = ['good' if v >= 0.5 else "fair" for v in hrr_vals]
-    final_df.loc[pd.isna(hrr_vals), 'Recovery Class'] = np.nan
-    final_df = final_df.dropna(subset=['Recovery Class'])
-    return final_df
 
 
 if __name__ == '__main__':
