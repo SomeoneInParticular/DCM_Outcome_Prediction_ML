@@ -18,7 +18,7 @@ If you cannot run these scripts on SLURM, you can uncomment the following code-b
 Once this is done, you can run each job in series with the following command, replacing (or setting) `$ARRAY_MAX` to the larger number specified in the SLURM header's `#SBATCH --array` range:
 
 ```angular2html
-for i in $(seq 0 $ARRAY_MAX); do run_clinical_analysis.sh $i ; done
+for i in $(seq 0 $ARRAY_MAX); do run_clinical_analysis.sl $i ; done
 ```
 
 A few notes if you run into problems:
