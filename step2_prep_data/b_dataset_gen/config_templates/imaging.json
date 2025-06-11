@@ -1,0 +1,27 @@
+{
+  "label": "",
+  "format": "tabular",
+  "data_source": "",
+  "separator": "\t",
+  "index": "GRP",
+  "pre_split_hooks": [
+    {
+      "type": "feature_drop_null",
+      "threshold": 0.5
+    },
+    {
+      "type": "sample_drop_null",
+      "threshold": 0.5
+    }
+  ],
+  "post_split_hooks": [
+    {
+      "type": "imputation_simple",
+      "strategy": "mean"
+    },
+    {
+      "type": "standard_scaling",
+      "run_per_cross": true
+    }
+  ]
+}
