@@ -21,3 +21,4 @@ If you want to replicate our analyses, please follow the steps below:
 1. Activate the Conda/Mamba environment you installed the requisite packages into, as detailed in 
 1. Follow the steps detailed in `step1_process_mri` to process the MRI sequences, generating the MRI-derived metric datasets using a Spinal Cord Toolbox (version 7 or greater).
 1. Then, run the instructions detailed in `step2_prep_data` to gather all the data into one place and format it for use in MOOP.
+1. Run the MOOP analyses for all combinations of dataset, model, and study configuration by following the instructions in `step3_run_analysis`.
