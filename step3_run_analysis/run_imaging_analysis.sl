@@ -24,7 +24,8 @@ module purge
 # Reset to the base environment; otherwise stupidity ensues
 source activate base
 
-SLURM_ARRAY_TASK_ID=$1  # TMP
+## Un-comment the statement below to take the first command line parameter as the task ID. ##
+#SLURM_ARRAY_TASK_ID=$1
 
 # Calculate the study divisor
 STUDY_DIVISOR=$((N_MODELS * N_DATASETS))
