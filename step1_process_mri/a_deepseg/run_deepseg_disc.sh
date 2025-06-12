@@ -59,8 +59,6 @@ VERT_POS_FILE="$OUT_FOLDER/${SEG_NAME%%.*}_labeled_verts.nii.gz"
 
 # If the disc position annotations don't exist, generate them
 if [ ! -f "$VERT_POS_FILE" ]; then
-  # Activate this project's environment
-  conda activate DCM_Disk_ML
   # Run the disc offset script
   python disc_to_vert_pos.py -i "$DISC_POS_FILE"
 else
