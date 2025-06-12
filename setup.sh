@@ -4,12 +4,6 @@
 git submodule init
 git submodule update
 
-# Create a directory for the local conda environments if they don't already exist
-LOCAL_ENV_DIR="./env"
-if [ ! -d "$LOCAL_ENV_DIR" ]; then
-  mkdir "$LOCAL_ENV_DIR"
-fi
-
 # Create the Conda environment with the packages needed for this project, if it doesn't already exist
 ANALYSIS_ENV_NAME="DCM_Disk_ML"
 if conda env list | grep "$ANALYSIS_ENV_NAME"; then
