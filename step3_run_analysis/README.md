@@ -8,11 +8,17 @@ If you have access to an SLURM-managed HPC cluster, you can run each with an `sb
 sbatch run_clinical_analysis.sl
 ```
 
-If you cannot run these scripts on SLURM, you can uncomment the following code-block to make it act as a bash script instead:
+If you cannot run these scripts on SLURM, you can modify each of the scripts in the following ways to make them act as a "bash" script instead.
 
 ```bash
 ## Un-comment the statement below to take the first command line parameter as the task ID. ##
 #SLURM_ARRAY_TASK_ID=$1
+```
+
+```bash
+# Run Modular Optuna ML using the configuration files selected; swap the commented lines to treat it as a script
+#conda activate ../env/moop_analysis
+source activate ../env/moop_analysis
 ```
 
 Once this is done, you can run each job in series with the following command, replacing (or setting) `$ARRAY_MAX` to the larger number specified in the SLURM header's `#SBATCH --array` range:

@@ -1,0 +1,68 @@
+#!/bin/bash
+# This pre-commit hook clears output cells in Jupyter notebooks. Modified from: https://zhauniarovich.com/post/2020/2020-10-clearing-jupyter-output-p2/
+
+# Avoid committing through errors; crash out instead
+set -o errexit
+set -o pipefail
+set -o nounset
+IFS=$'\n\t'
+
+# Isolate the first argument in the variable, and use it to grep the contents in the rest
+function elementIn () {
+  local elem="$1"  # Save first argument in a variable
+  shift            # Shift all arguments to the left (original $1 gets lost)
+  local arr=("$@") # Rebuild the array with rest of arguments
+  if printf '%s\n' "${arr[@]}" | grep -q --line-regexp "${elem}"; then
+    return 0
+  fi
+  return 1
+}
+
+# Select the commit to actually clean (usually HEAD, fall back to 'initial' for headless commits)
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+
+# Find all notebook files that have changed in this commit, and track them
+IPYNB_FILES=()
+while IFS='' read -r line; do
+	IPYNB_FILES+=( "$line" );
+done < <(git diff-index --name-only --cached --diff-filter=ACMR "${against}" -- | grep -i \.ipynb$ )
+
+
+# Activate our working environment, using the natively installed CONDA installation if it exists
+eval "$($(which conda) 'shell.bash' 'hook')"
+conda activate DCM_Disk_ML
+
+# For each file tracked prior, strip its output and metadata
+for FILE in "${IPYNB_FILES[@]}"; do
+	echo "Processing file: '$FILE'"
+	jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace "$FILE"
+done
+
+# For debugging purposes, list all files which were modified in this way
+MODIFIED_FILES=()
+while IFS='' read -r line; do
+	MODIFIED_FILES+=( "$line" );
+done < <(git ls-files --modified --exclude-standard)
+AMOUNT=0
+for mfile in "${MODIFIED_FILES[@]}"; do
+	if elementIn "$mfile" "${IPYNB_FILES[@]}"; then
+		echo "'$mfile' has been modified by pre-commit hook!"
+		AMOUNT=$((AMOUNT+1))
+	fi
+done
+
+# Confirm
+if [[ $AMOUNT -eq 0 ]]; then
+	echo "No ipynb files were modified!"
+	exit 0
+else
+	echo "Pre-commit hook modified $AMOUNT ipynb files!"
+	exit 1
+fi

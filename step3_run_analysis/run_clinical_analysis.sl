@@ -45,6 +45,7 @@ MODEL_FILE=$(find $MODEL_FOLDER/*.json | head -n $MODEL_IDX | tail -n 1)
 DATA_IDX=$((INNER_IDX / N_MODELS + 1))
 DATA_FILE=$(find $DATA_FOLDER/*.json | head -n $DATA_IDX | tail -n 1)
 
-# Run Modular Optuna ML using the configuration files selected
-conda activate modular_optuna_ml
+# Run Modular Optuna ML using the configuration files selected; swap the commented lines to treat it as a script
+#conda activate ../env/moop_analysis
+source activate ../env/moop_analysis
 python "$MOOPS_SOURCE/run_ml_analysis.py" -d "$DATA_FILE" -m "$MODEL_FILE" -s "$STUDY_FILE" --overwrite --timeout 300
