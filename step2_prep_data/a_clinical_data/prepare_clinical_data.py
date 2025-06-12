@@ -14,8 +14,8 @@ def get_parser():
     )
 
     argparser.add_argument(
-        '-o', '--output_file', type=Path, default=Path('clinical_metrics/processed.tsv'),
-        help="The file name (and path) that the results should be saved too."
+        '-o', '--output_folder', type=Path, default=Path('clinical_metrics'),
+        help="The path name where results should be saved too."
     )
 
     return argparser
@@ -104,16 +104,10 @@ def calculate_targets(final_df):
     final_df.loc[pd.isna(hrr_vals), 'Recovery Class'] = np.nan
     final_df = final_df.dropna(subset=['Recovery Class'])
 
-    # Drop the remaining variables, as they would mislead the ML model
-    final_df = final_df.drop(columns=[
-        'mJOA 12 months',
-        'HRR'
-    ])
-
     return final_df
 
 
-def main(clinical_data: Path, output_file: Path):
+def main(clinical_data: Path, output_folder: Path):
     # Read the clinical data into a dataframe
     init_df = pd.read_csv(clinical_data, sep='\t')
     init_df = init_df.set_index('GRP')
@@ -148,12 +142,23 @@ def main(clinical_data: Path, output_file: Path):
     # Calculate the final target metrics, HRR and recovery ratio
     final_df = calculate_targets(final_df)
 
-    # Save the results
-    if not output_file.parent.exists():
-        output_file.parent.mkdir(parents=True)
-    if '.tsv' != output_file.name[-4:]:
-        output_file = str(output_file) + '.tsv'
-    final_df.to_csv(output_file, sep='\t')
+    # Create the output directory if it doesn't already exist
+    if not output_folder.exists():
+        output_folder.mkdir(parents=True)
+
+    # Save the dataframe in this current state for use in clinical metric analysis
+    full_data_file = output_folder / "full_data.tsv"
+    final_df.to_csv(full_data_file, sep='\t')
+
+    # Drop metrics which would confuse the ML model
+    final_df = final_df.drop(columns=[
+        'mJOA 12 months',
+        'HRR'
+    ])
+
+    # Save the ML-prepped file
+    ml_data_file = output_folder / "clinical_ml.tsv"
+    final_df.to_csv(ml_data_file, sep='\t')
 
 
 if __name__ == '__main__':
