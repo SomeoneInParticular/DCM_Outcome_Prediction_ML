@@ -148,6 +148,12 @@ def drop_angle_metrics(init_df: pd.DataFrame):
     return init_df.loc[:, good_cols]
 
 
+def drop_rare_imaging_modalities(init_df: pd.DataFrame):
+    img_cols = ["orientation", "weight", "algorithm"]
+    to_keep_dfs = [df for _, df in init_df.groupby(img_cols) if df.shape[0] > 10]
+    return pd.concat(to_keep_dfs)
+
+
 def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_centered: bool):
     # Identify all the files which match the glob pattern
     files_to_stack = list(root_dir.glob(glob_pattern))
@@ -177,6 +183,9 @@ def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_
 
     # Drop angle metrics, as they poison ML models (based on preliminary testing)
     full_df = drop_angle_metrics(full_df)
+
+    # Drop imaging modalities which are rare (fewer than 10 samples)
+    full_df = drop_rare_imaging_modalities(full_df)
 
     # Save the result
     if '.tsv' != output.name[-4:]:
