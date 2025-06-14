@@ -125,6 +125,10 @@ def main(clinical_data: Path, mri_path: Path, output_folder: Path, template_fold
     # Generate a "joined" dataset for each MRI DF, which extends it with clinical data
     full_dfs = {k: v.join(clinical_df, how='inner') for k, v in mri_dfs.items()}
 
+    # Add the "Recovery Class" from clinical into the imaging datasets, as it';s still our target metric
+    rc_df = clinical_df.loc[: ["Recovery Class"]]
+    mri_dfs = {k: v.join(rc_df, how='inner') for k, v in mri_dfs.items()}
+
     # Split the MRI and Full dataframes into samples grouped by their MRI modality (weight, orientation, and algorithm)
     grouping_cols = ["weight", "orientation", "algorithm"]
     def _unpack_strata(df_map: dict[str, pd.DataFrame]):
