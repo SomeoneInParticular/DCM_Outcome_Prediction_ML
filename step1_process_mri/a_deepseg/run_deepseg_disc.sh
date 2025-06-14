@@ -67,6 +67,11 @@ else
   echo "Disc offset annotations already exist, skipping."
 fi
 
+if [! -f "$VERT_POS_FILE" ]; then
+  echo "Failed to run disc-centering, terminating early"
+  exit 1
+fi
+
 # A temporary directory to avoid overwriting the previous vertebral labels
 TMP_DIR="$OUT_FOLDER/tmp"
 TMP_OUT="$TMP_DIR/${SEG_NAME%%.*}_labeled.nii.gz"
