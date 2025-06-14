@@ -4,7 +4,7 @@
 ROOT_DIR=""
 
 # Un-comment if you are running this in an HPC context, so the Conda environment is loaded properly
-#conda activate
+#conda activate DCM_Disk_ML
 
 # Create a directory to store everything in
 if [ ! -d "./mri_metrics" ]; then
