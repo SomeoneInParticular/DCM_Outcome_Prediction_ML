@@ -142,6 +142,12 @@ def keep_only_last_run(init_df: pd.DataFrame):
     return result_df
 
 
+def drop_angle_metrics(init_df: pd.DataFrame):
+    # Drop angle metrics; they were found to hinder ML models more than they helped
+    good_cols = [c for c in init_df if "angle" not in c]
+    return init_df.loc[:, good_cols]
+
+
 def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_centered: bool):
     # Identify all the files which match the glob pattern
     files_to_stack = list(root_dir.glob(glob_pattern))
@@ -168,6 +174,9 @@ def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_
 
     # Keep only the last run of all sequences
     full_df = keep_only_last_run(full_df)
+
+    # Drop angle metrics, as they poison ML models (based on preliminary testing)
+    full_df = drop_angle_metrics(full_df)
 
     # Save the result
     if '.tsv' != output.name[-4:]:
