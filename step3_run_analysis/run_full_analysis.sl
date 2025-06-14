@@ -21,9 +21,6 @@ MOOPS_SOURCE="../modular_optuna_ml"
 # Purge any loaded modules
 module purge
 
-# Reset to the base environment; otherwise stupidity ensues
-source activate base
-
 ## Un-comment the statement below to take the first command line parameter as the task ID. ##
 #SLURM_ARRAY_TASK_ID=$1
 
