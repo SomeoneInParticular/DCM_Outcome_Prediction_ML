@@ -4,14 +4,14 @@
 #SBATCH --cpus-per-task 16
 #SBATCH --time 48:00:00
 #SBATCH --partition=cpu2023,cpu2022,cpu2021,cpu2019
-#SBATCH --array=0-74
+#SBATCH --array=0-299
 ##########################################################################
 # ^ VALIDATE THIS MANUALLY; IT SHOULD BE THE PRODUCT OF THE NUMBER OF  ^ #
 # ^ STUDY, MODEL, AND DATA CONFIGURATION, MINUS 1                      ^ #
 ##########################################################################
 
 # Validate that all values here are correct before running the SLURM script!
-N_DATASETS=15
+N_DATASETS=60
 N_MODELS=5
 STUDY_FOLDER="./study_config"
 MODEL_FOLDER="./model_configs"

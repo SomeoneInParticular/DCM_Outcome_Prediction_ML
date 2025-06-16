@@ -139,7 +139,7 @@ def main(clinical_data: Path, mri_path: Path, output_folder: Path, template_fold
                 strata_label = "_".join(g_idx)
                 # Drop the grouping columns, as well as the MRI run, as they are metadata at this point
                 strata_df = g_df.drop(columns=[*grouping_cols, "run"])
-                strata_df_map[strata_label] = strata_df
+                strata_df_map[f"{k}_{strata_label}"] = strata_df
         return strata_df_map
 
     mri_df_strata = _unpack_strata(mri_dfs)
