@@ -1,4 +1,5 @@
 import json
+import shutil
 from argparse import ArgumentParser
 from pathlib import Path
 from copy import deepcopy
@@ -144,6 +145,10 @@ def main(clinical_data: Path, mri_path: Path, output_folder: Path, template_fold
 
     mri_df_strata = _unpack_strata(mri_dfs)
     full_df_strata = _unpack_strata(full_dfs)
+
+    # Remove any existing datasets folder, as they can "stack" otherwise
+    if output_folder.exists():
+        shutil.rmtree(output_folder)
 
     # Save the clinical dataframe (and corresponding configurations)
     json_template = template_folder / "clinical.json"
