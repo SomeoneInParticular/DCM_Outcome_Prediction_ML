@@ -4,7 +4,7 @@
 /step2_prep_data/b_dataset_gen/datasets/
 /step3_run_analysis/results/
 /step4_results_interp/figures/
-/step4_results_interp/.ipynb_checkpoints/clinical_distributions-checkpoint.ipynb
+/step4_results_interp/.ipynb_checkpoints/
 
 # JetBrains docs that should be set by the user, to their preference
 .idea/
