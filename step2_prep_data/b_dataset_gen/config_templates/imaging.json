@@ -8,10 +8,6 @@
     {
       "type": "feature_drop_null",
       "threshold": 0.5
-    },
-    {
-      "type": "sample_drop_null",
-      "threshold": 0.5
     }
   ],
   "post_split_hooks": [
