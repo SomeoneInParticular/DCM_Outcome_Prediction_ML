@@ -144,7 +144,7 @@ def keep_only_last_run(init_df: pd.DataFrame):
 
 def drop_angle_metrics(init_df: pd.DataFrame):
     # Drop angle metrics; they were found to hinder ML models more than they helped
-    good_cols = [c for c in init_df if "angle" not in c]
+    good_cols = [c for c in init_df.columns if "angle" not in c]
     return init_df.loc[:, good_cols]
 
 
