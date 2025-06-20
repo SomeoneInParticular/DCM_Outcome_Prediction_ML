@@ -13,22 +13,22 @@ fi
 
 # Gather the vertebral metrics
 echo "Gathering vertebral metrics..."
-python stack_metrics.py -r "$ROOT_DIR" -g "**/*_vertebrae_metrics.csv" -o "mri_metrics/dcm_vert.tsv"
+python stack_metrics.py -r "$ROOT_DIR" -g "**/*_vertebrae_metrics.csv" -o "mri_metrics/dcm_vert"
 echo "Vertebral metrics gathered!"
 
 # Gather the disc-centered metrics
 echo "Gathering disc metrics..."
-python stack_metrics.py -r "$ROOT_DIR" -g "**/*_disc_metrics.csv" -o "mri_metrics/dcm_disc.tsv" --disc_centered
+python stack_metrics.py -r "$ROOT_DIR" -g "**/*_disc_metrics.csv" -o "mri_metrics/dcm_disc" --disc_centered
 echo "Disc metrics gathered!"
 
 # Gather the per-slice metrics
 echo "Gathering slice metrics..."
-python stack_metrics.py -r "$ROOT_DIR" -g "**/*_perslice_metrics.csv" -o "mri_metrics/dcm_slice.tsv" --per_slice
+python stack_metrics.py -r "$ROOT_DIR" -g "**/*_perslice_metrics.csv" -o "mri_metrics/dcm_slice" --per_slice
 echo "Slice metrics gathered!"
 
 # Gather the PAM50 slice metrics
 echo "Gathering PAM50-normalized slice metrics..."
-python stack_metrics.py -r "$ROOT_DIR" -g "**/*_pam50_metrics.csv" -o "mri_metrics/dcm_pam50.tsv" --per_slice
+python stack_metrics.py -r "$ROOT_DIR" -g "**/*_pam50_metrics.csv" -o "mri_metrics/dcm_pam50" --per_slice
 echo "PAM50-normalized slice metrics gathered!"
 
 echo "DONE!"

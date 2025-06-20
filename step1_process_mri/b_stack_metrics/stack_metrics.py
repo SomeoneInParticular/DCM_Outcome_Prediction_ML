@@ -32,14 +32,15 @@ def get_parser() -> ArgumentParser:
 
     # Flags
     argparser.add_argument(
-        '--per_slice', action='store_true',
-        help="Denotes that the input data should be treated as 'per-slice' results, calculated metrics across the "
-             "entire subject (rather than per-label, the default)."
-    )
-    argparser.add_argument(
         '--disc_centered', action='store_true',
         help="Denotes that the vertebral labels were offset to center them on the discs; adding this flag will change "
              "the column labels to make clear that this is the case."
+    )
+
+    argparser.add_argument(
+        '--per_slice', action='store_true',
+        help="Denotes that the input data should be treated as 'per-slice' metrics, which need to be aggregated (both "
+             "globally and per-vertebrae) to be ready for ML analysis."
     )
 
     return argparser
@@ -78,8 +79,7 @@ def clean_mri_data(init_df: pd.DataFrame):
 
 def pivot_vertlabels(init_df: pd.DataFrame):
     # Pivot along the vertebral level to make it a feature (rather than a sample)
-    sub_df = init_df.set_index([*IDX, 'VertLevel'])
-    pivot_df = sub_df.unstack(level='VertLevel')
+    pivot_df = init_df.unstack(level='VertLevel')
 
     # Re-label the columns to be easier to understand
     vert_label_cols = [f"{c[0]} [V{c[1]}]" for c in pivot_df.columns]
@@ -89,9 +89,9 @@ def pivot_vertlabels(init_df: pd.DataFrame):
     return pivot_df
 
 
-def calc_perslice_stats(init_df: pd.DataFrame):
+def clean_slices(init_df: pd.DataFrame):
     # Drop VertLevel and Length, as they have no meaning here
-    result_df = init_df.drop(['VertLevel', 'SUM(length)'], axis=1)
+    result_df = init_df.drop(['SUM(length)'], axis=1)
 
     # Drop all STD metrics, as they are not relevant
     std_cols = [c for c in init_df.columns if "STD" in c]
@@ -101,10 +101,39 @@ def calc_perslice_stats(init_df: pd.DataFrame):
     new_cols = [c.replace('MEAN(', '[').replace(')', ']') for c in result_df.columns]
     result_df.columns = new_cols
 
+    # Return the resulting "cleaned" dataframe
+    return result_df
+
+
+def slices_to_verts(init_df: pd.DataFrame):
+    """
+    Converts per-slice metrics into per-vertebrae metrics, via statistical
+    aggregation (with mean and std for each metric)
+    """
+    # Group the data by our index columns + 'VertLabel'
+    df_groups = init_df.groupby([*IDX, 'VertLevel'])
+
+    # Calculate the mean and std for each
+    mean_df = df_groups.mean()
+    mean_df.columns = [f"MEAN {c}" for c in mean_df.columns]
+    std_df = df_groups.std()
+    std_df.columns = [f"STD {c}" for c in std_df.columns]
+
+    # Concatenate them together into a single dataframe
+    return_df = pd.concat([mean_df, std_df], axis=1)
+
+    # Return the result
+    return return_df
+
+
+def aggregate_global(init_df: pd.DataFrame):
+    # Drop the vertebral level, as it is not useful in this context
+    result_df = init_df.drop('VertLevel', axis=1)
+
     # Group by our indices
     df_groups = result_df.groupby(IDX)
 
-    # Calculate various statistics for each remaining element
+    # Calculate various statistics for each remaining elements
     result_subsets = {
         'MIN': df_groups.min(),
         'MAX': df_groups.max(),
@@ -112,16 +141,28 @@ def calc_perslice_stats(init_df: pd.DataFrame):
         'STD': df_groups.std()
     }
 
-    # Update columns to be much clearer
+    # Update columns to be more clearly labelled
     for k, v in result_subsets.items():
         v.columns = [f"{k} {c}" for c in v.columns]
 
-    # Concatenate them together
+    # Concatenate everything together
     final_df = pd.concat(result_subsets.values(), axis=1)
 
     # Return the result
     return final_df
 
+
+def aggregate_verts_global(init_df: pd.DataFrame):
+    # Update the columns to be square-bracketed, to match the style of per-slice aggregates
+    tmp_df = init_df.copy()
+    tmp_df.columns = [f"[{c}]" for c in tmp_df.columns]
+
+    # Group the results by our index columns
+    tmp_df = tmp_df.reset_index()
+    final_df = aggregate_global(tmp_df)
+
+    # Return the result
+    return final_df
 
 def updated_disc_centered_columns(init_df: pd.DataFrame):
     updated_df = init_df.copy()
@@ -171,26 +212,45 @@ def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_
 
     # Process each patient's data on either a per-label basis (if vertebral/disc focused) or full spine (if per-slice focused)
     if per_slice:
-        full_df = calc_perslice_stats(full_df)
+        # Clean up the dataframe to be clean in preparation for aggregation
+        full_df = clean_slices(full_df)
+        # Aggregate the per-slice metrics on a per-vertebral level
+        lev_df = slices_to_verts(full_df)
+        # Pivot the vert labels to be features
+        lev_df = pivot_vertlabels(lev_df)
+        # Aggregates all slices into a single set of statistical metrics
+        agg_df = aggregate_global(full_df)
     else:
-        full_df = pivot_vertlabels(full_df)
-        # if these "vertebral" metrics are actually disc-centered, denote as such
+        # Set the index of the dataframe to be the index + VertLevel
+        full_df = full_df.set_index([*IDX, 'VertLevel'])
+        # Pivot the vertebrae to be features, rather than samples
+        lev_df = pivot_vertlabels(full_df)
+        # If these "vertebral" metrics are actually disc-centered, denote as such
         if disc_centered:
-            full_df = updated_disc_centered_columns(full_df)
+            lev_df = updated_disc_centered_columns(lev_df)
+        # For vert-labelled data, aggregate the results across vertebral samples instead
+        agg_df = aggregate_verts_global(full_df)
 
-    # Keep only the last run of all sequences
-    full_df = keep_only_last_run(full_df)
+    # Run final clean-up and saving for both the "vertebral-level" and "global aggregates"
+    df_map = {
+        "per_level": lev_df,
+        "global_agg": agg_df
+    }
 
-    # Drop angle metrics, as they poison ML models (based on preliminary testing)
-    full_df = drop_angle_metrics(full_df)
+    for label, df in df_map.items():
+        # Keep only the last run of all sequences
+        df = keep_only_last_run(df)
 
-    # Drop imaging modalities which are rare (fewer than 10 samples)
-    full_df = drop_rare_imaging_modalities(full_df)
+        # Drop angle metrics, as they poison ML models (based on preliminary testing)
+        df = drop_angle_metrics(df)
 
-    # Save the result
-    if '.tsv' != output.name[-4:]:
-        output = str(output) + ".tsv"
-    full_df.to_csv(output, sep='\t')
+        # Drop imaging modalities which are rare (fewer than 10 samples)
+        # df = drop_rare_imaging_modalities(df)
+
+        # Save the result
+        fname = f"{str(output)}_{label}.tsv"
+
+        df.to_csv(fname, sep='\t')
 
 
 if __name__ == '__main__':
