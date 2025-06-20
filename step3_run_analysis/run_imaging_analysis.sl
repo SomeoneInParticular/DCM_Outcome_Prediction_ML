@@ -11,7 +11,7 @@
 ##########################################################################
 
 # Validate that all values here are correct before running the SLURM script!
-N_DATASETS=60
+N_DATASETS=120
 N_MODELS=5
 STUDY_FOLDER="./study_config"
 MODEL_FOLDER="./model_configs"
