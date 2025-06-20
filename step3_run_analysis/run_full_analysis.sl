@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task 16
 #SBATCH --time 48:00:00
 #SBATCH --partition=cpu2023,cpu2022,cpu2021,cpu2019
-#SBATCH --array=0-299
+#SBATCH --array=0-599
 ##########################################################################
 # ^ VALIDATE THIS MANUALLY; IT SHOULD BE THE PRODUCT OF THE NUMBER OF  ^ #
 # ^ STUDY, MODEL, AND DATA CONFIGURATION, MINUS 1                      ^ #
