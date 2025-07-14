@@ -246,7 +246,7 @@ def main(glob_pattern: str, output: Path, root_dir: Path, per_slice: bool, disc_
         df = drop_angle_metrics(df)
 
         # Drop imaging modalities which are rare (fewer than 10 samples)
-        # df = drop_rare_imaging_modalities(df)
+        df = drop_rare_imaging_modalities(df)
 
         # Save the result
         fname = f"{str(output)}_{label}.tsv"
