@@ -164,6 +164,7 @@ def aggregate_verts_global(init_df: pd.DataFrame):
     # Return the result
     return final_df
 
+
 def updated_disc_centered_columns(init_df: pd.DataFrame):
     updated_df = init_df.copy()
 
